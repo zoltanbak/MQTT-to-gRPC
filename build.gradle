@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+    id 'com.google.protobuf' version '0.8.18'
+    id 'idea'
+}
+
+group 'zb.hermes'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.19.4"
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.44.1'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+dependencies {
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.2'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.17.2'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    implementation group: 'org.eclipse.paho', name: 'org.eclipse.paho.client.mqttv3', version: '1.2.5'
+
+    runtimeOnly 'io.grpc:grpc-netty-shaded:1.44.1'
+    implementation 'io.grpc:grpc-protobuf:1.44.1'
+    implementation 'io.grpc:grpc-stub:1.44.1'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+
+    implementation "io.reactivex.rxjava3:rxjava:3.1.3"
+
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    implementation group: 'org.json', name: 'json', version: '20220320'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+protobuf {
+    generatedFilesBaseDir = "$projectDir/gen"
+}
+
+clean {
+    delete protobuf.generatedFilesBaseDir
+}
+
+// if you have source imports issues, add the below
+sourceSets.main.java.srcDir new File(buildDir, 'generated/source')
+idea {
+    module {
+        // Marks the already(!) added srcDir as "generated"
+        generatedSourceDirs += file('build/generated/source')
+    }
+}
